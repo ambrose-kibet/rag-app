@@ -43,11 +43,6 @@ async def new_chat(
 
         messages = [
             CreateMessage(
-                content=message.content,
-                message_type="human",
-                chat_id=new_message.chat_id,
-            ),
-            CreateMessage(
                 content=response, message_type="system", chat_id=new_message.chat_id
             ),
         ]
