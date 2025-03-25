@@ -7,6 +7,12 @@ from src.utils import get_model
 from src.embeddings.service import TextEmbeddingService
 from src.chats.service import MessageService
 from src.config import Config
+import logging
+
+# Configure logging
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
+
 
 text_embedding_service = TextEmbeddingService()
 message_service = MessageService()
@@ -75,12 +81,19 @@ async def generate_response(
     contextualized_q = contextualize_q_chain.invoke(
         {"input": query, "chat_history": chat_history_placeholder}
     )
-    print(contextualized_q)
+
+    logger.info("Contextualized question: %s", contextualized_q)
     context_docs = await text_embedding_service.get_text_embeddings_by_text(
         session=session, input_text=contextualized_q
     )
     context_docs = [doc.content for doc in context_docs]
-    # Now run the QA chain with the retrieved context
+    if not context_docs:
+        logger.warning("No context documents returned for query: %s", query)
+        # add context that no matching info and proceeding to escalate
+        # context_docs = ["No matching information found. Escalating to human agent."]
+        # send a slack notification to the human agent
+        return "No matching information found. Escalating to human agent."
+
     result = question_answer_chain.invoke(
         {
             "input": query,
