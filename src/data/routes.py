@@ -22,9 +22,9 @@ async def ingest_pdf(
         pdf_reader = PdfReader(BytesIO(contents))
         extracted_text = ""
         for page in pdf_reader.pages:
-            extracted_text = page.extract_text()
+            text = page.extract_text()
             if extracted_text:
-                extracted_text += extracted_text
+                extracted_text += text
 
         text_chunks = data_service.split_text(extracted_text)
         for chunk in text_chunks:
