@@ -50,7 +50,7 @@ class TextEmbeddingService:
         query_embedding = self.get_text_embedding(text)
 
         k = 5
-        similarity_threshold = 0.7
+        similarity_threshold = 0.85
 
         query = (
             select(
