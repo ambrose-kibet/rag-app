@@ -49,7 +49,7 @@ class TextEmbeddingService:
         text = input_text
         query_embedding = self.get_text_embedding(text)
 
-        k = 8
+        k = 8  # roughly 8k tokens -gpt3.5 turbo 16k context window
         similarity_threshold = 0.85
 
         query = (
