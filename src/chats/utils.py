@@ -92,7 +92,7 @@ async def generate_response(
         # add context that no matching info and proceeding to escalate
         # context_docs = ["No matching information found. Escalating to human agent."]
         # send a slack notification to the human agent
-        return "No matching information found. Escalating to human agent."
+        return "I don't Know. Escalating to human agent."
 
     result = question_answer_chain.invoke(
         {
