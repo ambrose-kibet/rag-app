@@ -28,7 +28,7 @@ class MessageService:
         result = await session.exec(
             select(Message)
             .where(Message.chat_id == chat_id)
-            .order_by(desc(Message.created_at))
+            .order_by((Message.created_at))
         )
         messages = result.all()
         return messages
