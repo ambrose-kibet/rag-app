@@ -8,6 +8,10 @@ from src.embeddings.schemas import (
 )
 from src.utils import get_embeddings
 from sqlalchemy.future import select
+import uuid
+
+# Define a namespace for generating UUIDs
+CONTENT_NAMESPACE = uuid.UUID("a6e76758-7d53-4a5a-9027-3c29e78d1e55")
 
 
 class TextEmbeddingService:
@@ -16,8 +20,25 @@ class TextEmbeddingService:
         self, session: AsyncSession, text_embedding: str
     ) -> TextEmbeddingSchema:
         text = text_embedding
+        content_hash = self.generate_content_hash(text)
+
+        # Check for existing entry first
+        existing = await session.exec(
+            select(TextEmbedding).where(TextEmbedding.content_hash == content_hash)
+        )
+        if existing_record := existing.scalar_one_or_none():
+            print("Found existing record")
+            return existing_record
+
+        # Only generate embedding if new content
         embedding = self.get_text_embedding(text)
-        db_text_embedding = TextEmbedding(content=text, embedding=embedding)
+
+        db_text_embedding = TextEmbedding(
+            content=text,
+            embedding=embedding,
+            content_hash=content_hash,
+        )
+
         session.add(db_text_embedding)
         await session.commit()
         return db_text_embedding
@@ -62,3 +83,7 @@ class TextEmbeddingService:
         text = input_text
         embedding = embeddings_instance.embed_documents([text])[0]
         return embedding
+
+    @staticmethod
+    def generate_content_hash(content: str) -> uuid.UUID:
+        return uuid.uuid5(CONTENT_NAMESPACE, content)

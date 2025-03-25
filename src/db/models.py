@@ -3,9 +3,14 @@ from datetime import datetime
 
 import sqlalchemy.dialects.postgresql as pg
 from sqlmodel import Column, Field, SQLModel
+from sqlalchemy.orm import DeclarativeBase
 from pgvector.sqlalchemy import Vector
 
 N_DIM = 1536
+
+
+class Base(DeclarativeBase):
+    pass
 
 
 class Message(SQLModel, table=True):
@@ -28,6 +33,11 @@ class TextEmbedding(SQLModel, table=True):
     )
     embedding: Vector = Field(sa_column=Column(Vector(N_DIM)))
     content: str = Field(sa_column=Column(pg.TEXT))
+    content_hash: uuid.UUID = Field(
+        sa_column=Column(
+            pg.UUID, unique=True, nullable=False, index=True  # Added for faster lookups
+        )
+    )
 
     class Config:
         arbitrary_types_allowed = True
